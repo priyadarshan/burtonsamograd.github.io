@@ -2,6 +2,65 @@
   <head>
   </head>
   <body background="x/x-1.png">
-    <p style="color:white">(hello 'world)</p>
+    <p style="color:white">
+      <pre style="color:white">
+;(hello 'world)
+
+(eval-when (:compile-toplevel :load-toplevel)
+  (require 'vecto)
+
+(defun bg-image (file)
+  (let ((w 2048) (h 1024))
+  (with-canvas (:width w :height h)
+    (set-rgba-fill 0 0 0 1)
+    (rectangle 0 0 w h)
+    (fill-path)
+    (set-rgba-fill 1 1 1 1)
+    (set-font (get-font "~/OCRA.ttf") (/ w 32))
+    (draw-string (- w (/ w 32)) (/ w 32) "X")
+    (fill-path)
+
+    (do ((s (/ h 128) (incf s (/ h 128))))
+	((> s (/ h 16)))
+      (do ((x 0 (incf x s)))
+	  ((> x w))
+	(do ((y 0 (incf y s)))
+
+	    ((> y h))
+	  (set-line-width (random (/ 512 128)))
+	  (set-rgba-stroke .5 .5 .5 (random .25))
+	  (when (= 0 (random 32))
+	    (arc x y (1+ (random s)) 0 (* 2 pi)))
+	  (move-to x y)
+	  (line-to x (+ y s))
+	  (stroke)))
+      (do ((y 0 (incf y s)))
+	  ((> y w))
+	(do ((x 0 (incf x s)))
+	    ((> x w))
+	  (set-line-width (random (/ 512 128)))
+	  (set-rgba-stroke .5 .5 .5 (random .2))
+	  (when (= 0 (random 32))
+	    (arc x y (1+ (random s)) 0 (* 2 pi)))
+	  (move-to x y)
+	  (line-to (+ x s) y)
+	  (stroke))))
+
+    (set-rgba-fill .5 .5 .5 .1)
+    (translate (/ w 2) (/ h 2))
+    (flet ((circle (x y radius &optional (over 1) (rot 0))
+	     (rotate rot)
+             (arc 0 0 radius 0 (* 2 pi over))
+	     ))
+      (do ((r 0 (+ (incf r (random .05)))))
+	  ((> r 1))
+	(set-line-width (random (coerce (/ h 32) 'float)))
+	(set-rgba-stroke 1 1 1 (random 1.0))
+	(circle (/ h 2) (/ h 2) (+ 1 (random (/ h 2.24)))  r (random pi))
+	(stroke)))
+    (save-png file))))
+(bg-image "~/x-1.png")
+</pre>
+    </p>
   </body>
 </html>
